@@ -57,9 +57,9 @@ sonido-vivo/
 
 ## Equipo
 
-- Completar con los nombres de los integrantes.
+- Vicente Markov.
 
 ## Control de versiones
 
-- Se recomienda un commit por avance lógico (estructura HTML, estilos,
+- Un commit por avance lógico (estructura HTML, estilos,
   lógica de catálogo, validaciones, etc.), no un solo commit final.
