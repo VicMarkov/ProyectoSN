@@ -1,4 +1,4 @@
-# Sonido Vivo — Sitio Web (Evaluación Parcial 1)
+# Sonido Vivo — Sitio Web
 
 Prototipo frontend de la tienda **Sonido Vivo** (instrumentos musicales y
 equipos de sonido, Viña del Mar), desarrollado para la Evaluación Parcial 1
@@ -63,3 +63,6 @@ sonido-vivo/
 
 - Un commit por avance lógico (estructura HTML, estilos,
   lógica de catálogo, validaciones, etc.), no un solo commit final.
+
+## Material complementario
+https://drive.google.com/drive/folders/1Keo7lzNY78dB0mSs8sC1TsTszuUVn-96?usp=drive_link
