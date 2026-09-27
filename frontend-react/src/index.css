@@ -1,0 +1,36 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Space+Grotesk:wght@400;500;600&display=swap');
+
+:root {
+  --ink: #1e1812;
+  --ink-soft: #2b2016;
+  --paper: #f1ead8;
+  --copper: #b5622b;
+  --copper-dark: #8c4a20;
+  --moss: #4b5a44;
+  --danger: #a1372b;
+}
+
+body {
+  margin: 0;
+  font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+h1, h2, h3, h4, .fuente-titulo {
+  font-family: 'Fraunces', Georgia, serif;
+}
+
+/* Sobrescribe el color primario de React Bootstrap con la identidad de marca */
+.btn-primary {
+  --bs-btn-bg: var(--copper);
+  --bs-btn-border-color: var(--copper);
+  --bs-btn-hover-bg: var(--copper-dark);
+  --bs-btn-hover-border-color: var(--copper-dark);
+  --bs-btn-active-bg: var(--copper-dark);
+  --bs-btn-active-border-color: var(--copper-dark);
+}
+
+a {
+  color: var(--copper-dark);
+}
