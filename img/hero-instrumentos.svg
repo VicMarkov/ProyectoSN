@@ -1,0 +1,49 @@
+<svg viewBox="0 0 520 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ilustración de una guitarra acústica y un amplificador de válvulas">
+  <defs>
+    <linearGradient id="glow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#B5622B" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#B5622B" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <circle cx="330" cy="150" r="170" fill="url(#glow)"/>
+
+  <!-- Amplificador -->
+  <g transform="translate(60,300)">
+    <rect x="0" y="0" width="190" height="150" rx="6" fill="#2B2016" stroke="#4B5A44" stroke-width="2"/>
+    <rect x="14" y="14" width="162" height="90" rx="4" fill="#3A2C1D"/>
+    <circle cx="45" cy="59" r="26" fill="#171310"/>
+    <circle cx="95" cy="59" r="26" fill="#171310"/>
+    <circle cx="145" cy="59" r="26" fill="#171310"/>
+    <g fill="#F1EAD8">
+      <circle cx="45" cy="59" r="6"/>
+      <circle cx="95" cy="59" r="6"/>
+      <circle cx="145" cy="59" r="6"/>
+    </g>
+    <rect x="14" y="112" width="162" height="24" rx="3" fill="#171310"/>
+    <circle cx="30" cy="124" r="5" fill="#B5622B"/>
+  </g>
+
+  <!-- Guitarra acústica (silueta) -->
+  <g transform="translate(190,40)">
+    <path d="M95 0 L108 190" stroke="#3A2C1D" stroke-width="10" stroke-linecap="round"/>
+    <ellipse cx="95" cy="230" rx="46" ry="60" fill="#B5622B"/>
+    <ellipse cx="95" cy="330" rx="88" ry="98" fill="#8C4A20"/>
+    <circle cx="95" cy="330" r="40" fill="#2B2016"/>
+    <rect x="88" y="120" width="14" height="230" fill="#241D14" opacity="0.15"/>
+    <g stroke="#F1EAD8" stroke-width="1.5" opacity="0.7">
+      <line x1="70" y1="60" x2="76" y2="410"/>
+      <line x1="82" y1="60" x2="86" y2="410"/>
+      <line x1="95" y1="58" x2="95" y2="412"/>
+      <line x1="108" y1="60" x2="104" y2="410"/>
+      <line x1="120" y1="60" x2="114" y2="410"/>
+    </g>
+  </g>
+
+  <!-- Ondas de sonido -->
+  <g stroke="#F1EAD8" stroke-width="4" fill="none" stroke-linecap="round" opacity="0.85">
+    <path d="M360 220 Q385 250 360 280"/>
+    <path d="M385 195 Q425 250 385 305"/>
+    <path d="M410 170 Q465 250 410 330"/>
+  </g>
+</svg>
