@@ -19,6 +19,14 @@ Login de prueba (no hay backend todavía, se simula en `src/pages/Login.jsx`):
 - Correo: `demo@sonidovivo.cl`
 - Contraseña: `demo123`
 
+Pruebas unitarias (Vitest, Guía 15):
+
+```bash
+npm test          # en modo watch (re-ejecuta al guardar)
+npm run test:run  # ejecuta todo una vez y termina
+npm run test:cov  # lo mismo, más el reporte de cobertura en coverage/
+```
+
 ## Mapa de rutas (`src/App.jsx`)
 
 | Dirección | Página | Qué muestra |
@@ -83,9 +91,71 @@ del router.
   `cerrarSesion` y la sesión simulada en `localStorage` (se muestra en el
   navbar con un botón de "Cerrar sesión").
 
+## Pruebas unitarias (Guía 15)
+
+- **Framework**: Vitest + Testing Library (`jsdom` simula el navegador en
+  la terminal, sin pantalla ni EC2 gráfica).
+- **Ubicación**: cada prueba vive junto a lo que prueba, con el sufijo
+  `.test.jsx` (regla de la guía, igual que el estilo de componentes).
+  Ej: `src/components/atoms/Boton.jsx` → `Boton.test.jsx`.
+- **Config**: bloque `test` en `vite.config.js`, arranque global en
+  `src/setupTests.js` (aserciones de jest-dom + limpieza de
+  `localStorage` y título antes de cada caso).
+- **Ayuda**: `src/test/helpers.jsx` concentra los wrappers
+  `conProveedores()` (sesión + carrito + router), `conRouter()`, la sonda
+  `SondaRuta` para asertar direcciones y las semillas de `localStorage`.
+
+| Suite | Archivos | Qué cubre |
+|---|---|---|
+| Utilidades | `utils/validaciones.test.js`, `utils/formato.test.js` | Reglas puras de correo, teléfono, RUT con dígito verificador, texto, clave, select y formato `$129.990` |
+| Hook | `hooks/useTituloPagina.test.js` | Título de la pestaña al montar y al cambiar el valor (`renderHook`) |
+| Contextos | `context/CarritoContext.test.jsx`, `context/SesionContext.test.jsx` | Agregar/actualizar/quitar/vaciar, tope por stock, totales, persistencia y error fuera del provider |
+| Átomos (5) | `atoms/*.test.jsx` | Texto, spinner, inválido, textarea, select y etiqueta asociada |
+| Moléculas (3) | `molecules/*.test.jsx` | Campo con error/ayuda, tarjeta de producto (stock, agregado ✓) y línea del carrito |
+| Organismos (6) | `organisms/*.test.jsx` | Login, contacto, checkout (dirección solo con despacho, RUT formateado), resumen, navbar y footer |
+| Templates (2) | `templates/*.test.jsx` | Plantilla del sitio con navegación real y layout de login |
+| Páginas (6) + App | `pages/*.test.jsx`, `App.test.jsx` | Filtros del catálogo, carrito completo, confirmaciones, login simulado y mapa de rutas completo |
+
+**Total: 28 suites, 138 casos.** No se testean `main.jsx` (solo monta el
+árbol), `data/productos.js` (datos) ni los propios helpers.
+
+### El caso que falla a propósito (requerido por la rúbrica)
+
+`src/utils/validaciones.test.js` contiene **un único caso con error
+intencional**, marcado con `[A PROPÓSITO]`:
+
+```js
+it('[A PROPÓSITO] considera inválido el RUT 12.345.678-5', () => {
+  expect(rutValido('12.345.678-5')).toBe(false); // en realidad es true → falla
+});
+```
+
+Por eso:
+
+- `npm run test:run` y `npm run test:cov` terminan con **137 pasando y 1
+  fallando (código de salida 1)**: es el comportamiento esperado.
+- **No corregir ese expect**: la rúbrica del Parcial 2 exige demostrar que
+  Vitest detecta un error. Los otros 137 casos deben seguir en verde.
+
+### Cobertura
+
+`npm run test:cov` genera el reporte en `coverage/` (carpeta ignorada por
+git). Último resultado:
+
+| Métrica | Resultado |
+|---|---|
+| Statements | 92.95% |
+| Branches | 88.37% |
+| Functions | 90.36% |
+| Lines | 93.6% |
+
+El reporte HTML (`coverage/index.html`) sirve de evidencia para el
+documento de cobertura de la Guía 15.
+
 ## Verificación
 
 - `npm run build` compila sin errores.
+- `npm run test:run`: 137 pruebas en verde y 1 fallando (la intencional).
 - `npm run dev` + revisión manual de las 6 rutas.
 - Flujo completo probado en navegador headless (Edge): navegación sin
   recarga, agregar al carrito, contador del navbar, errores y confirmación
@@ -104,8 +174,6 @@ del router.
 
 ## Próximos pasos
 
-- Pruebas unitarias con Vitest (Guía 15): `utils/validaciones.js` ya son
-  funciones puras justamente para poder testearlas con `renderHook`.
 - Parámetros en la ruta con `useParams` (`/categoria/:nombre`,
   `/producto/:id`) y página de detalle de producto.
 - Migrar el sitio a API REST (Spring Boot + MySQL).
