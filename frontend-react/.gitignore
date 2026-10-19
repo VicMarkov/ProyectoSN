@@ -5,6 +5,9 @@ node_modules/
 dist/
 dist-ssr/
 
+# Pruebas (reporte generado por npm run test:cov)
+coverage/
+
 # Editores / sistemas operativos
 .vscode/
 .idea/
