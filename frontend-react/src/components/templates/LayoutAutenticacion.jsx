@@ -1,4 +1,5 @@
 import { Container, Row, Col } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 
 // TEMPLATE: el esqueleto de cualquier pantalla de autenticación
 // (login, recuperar contraseña, registro). Define DÓNDE va el panel
@@ -11,6 +12,10 @@ import { Container, Row, Col } from 'react-bootstrap';
 //    panel de marca queda oculto para no obligar a hacer scroll.
 //  - md (>= 768px, tablet en adelante): dos columnas lado a lado.
 function LayoutAutenticacion({ children }) {
+  // Las plantillas pueden usar el router: de aquí sale navigate para el
+  // enlace de "volver", igual que en PlantillaSitio.
+  const navigate = useNavigate();
+
   return (
     <div className="min-vh-100 d-flex align-items-center" style={{ background: 'var(--ink)' }}>
       <Container>
@@ -26,6 +31,18 @@ function LayoutAutenticacion({ children }) {
           <Col xs={12} md={6} lg={5}>
             <div className="bg-white rounded-3 shadow-sm p-4 p-md-5 my-4">
               {children}
+            </div>
+            <div className="text-center pb-4">
+              <a
+                href="/"
+                className="text-white-50 small"
+                onClick={(evento) => {
+                  evento.preventDefault();
+                  navigate('/');
+                }}
+              >
+                ← Volver al inicio
+              </a>
             </div>
           </Col>
         </Row>
