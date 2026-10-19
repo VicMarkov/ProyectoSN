@@ -15,6 +15,9 @@ export default defineConfig({
     setupFiles: './src/setupTests.js',
     coverage: {
       provider: 'v8',
+      // Sin esto, Vitest no escribe el reporte cuando hay un test fallando
+      // (y nosotros tenemos el caso fallido a propósito de la rúbrica).
+      reportOnFailure: true,
       // Código real medido en el reporte (Guía 15, sección 8).
       include: [
         'src/components/**',
