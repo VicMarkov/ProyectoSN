@@ -1,13 +1,31 @@
-import Login from './pages/Login';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-// Por ahora App solo muestra Login: es la única página migrada a React
-// en esta actividad. Cuando el resto del sitio (catálogo, carrito,
-// contacto) se migre desde la versión HTML/CSS/JS del Parcial 1, este
-// archivo pasará a usar react-router-dom (ya está en package.json)
-// para elegir qué página mostrar según la URL, tal como muestra la
-// Guía 12, sección 5.2.
+import Inicio from './pages/Inicio';
+import Catalogo from './pages/Catalogo';
+import Carrito from './pages/Carrito';
+import Contacto from './pages/Contacto';
+import Login from './pages/Login';
+import NoEncontrada from './pages/NoEncontrada';
+
+// App.jsx es el mapa de rutas: el único archivo que decide qué página se
+// dibuja para cada dirección del navegador (Guía 14, sección 3).
+// BrowserRouter activa la navegación (lee y cambia la dirección sin
+// recargar), Routes elige UNA Route según la dirección actual y dibuja su
+// element. Todo lo que use useNavigate o useParams queda dentro de él.
 function App() {
-  return <Login />;
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Inicio />} />
+        <Route path="/catalogo" element={<Catalogo />} />
+        <Route path="/carrito" element={<Carrito />} />
+        <Route path="/contacto" element={<Contacto />} />
+        <Route path="/login" element={<Login />} />
+        {/* "*" coincide con cualquier dirección que no calce con las demás. */}
+        <Route path="*" element={<NoEncontrada />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
 export default App;
