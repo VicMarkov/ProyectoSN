@@ -1,25 +1,74 @@
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Space+Grotesk:wght@400;500;600&display=swap');
 
+/*
+  Hoja de estilos de Sonido Vivo (React).
+  Se importa DESPUÉS de Bootstrap (ver main.jsx): así esta hoja manda en los
+  elementos compartidos (botones, títulos, campos) y Bootstrap queda como
+  base de layout/utilidades.
+  Traduce el diseño de frontend-html/css/style.css al nuevo árbol de
+  componentes de React, con nombres de clase propios donde había choque
+  (.hero-sitio en lugar de .hero, etc.).
+*/
+
 :root {
+  /* Paleta */
   --ink: #1e1812;
   --ink-soft: #2b2016;
   --paper: #f1ead8;
+  --paper-soft: #e7dcc2;
   --copper: #b5622b;
   --copper-dark: #8c4a20;
   --moss: #4b5a44;
+  --moss-light: #6e7f63;
+  --line: #c9bba0;
+  --text: #241d14;
+  --text-soft: #5a4f3d;
   --danger: #a1372b;
+
+  /* Layout */
+  --max-width: 1120px;
+  --radius: 3px;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   margin: 0;
   font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
   background: var(--paper);
-  color: var(--ink);
+  color: var(--text);
+  line-height: 1.55;
 }
 
 h1, h2, h3, h4, .fuente-titulo {
   font-family: 'Fraunces', Georgia, serif;
+  color: var(--ink);
+  line-height: 1.15;
+  font-weight: 700;
 }
+
+h1 { font-size: clamp(2.4rem, 5vw, 3.6rem); }
+h2 { font-size: clamp(1.7rem, 3vw, 2.3rem); }
+h3 { font-size: 1.25rem; }
+
+p { max-width: 62ch; }
+
+a {
+  color: var(--copper-dark);
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--copper);
+  outline-offset: 2px;
+}
+
+img, svg { max-width: 100%; display: block; }
 
 /* Sobrescribe el color primario de React Bootstrap con la identidad de marca */
 .btn-primary {
@@ -29,8 +78,464 @@ h1, h2, h3, h4, .fuente-titulo {
   --bs-btn-hover-border-color: var(--copper-dark);
   --bs-btn-active-bg: var(--copper-dark);
   --bs-btn-active-border-color: var(--copper-dark);
+  --bs-btn-disabled-bg: var(--copper);
+  --bs-btn-disabled-border-color: var(--copper);
 }
 
-a {
+/* ---------------------------------------------------------
+   Cabecera / navbar
+   --------------------------------------------------------- */
+.navbar-sitio {
+  background: var(--ink);
+  border-bottom: 3px solid var(--copper);
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.navbar-sitio .navbar-brand img {
+  height: 40px;
+  width: auto;
+}
+
+.navbar-sitio .navbar-toggler {
+  border-color: var(--paper);
+  color: var(--paper);
+}
+
+.navbar-sitio .nav-link {
+  color: var(--paper);
+  font-weight: 500;
+  border-bottom: 2px solid transparent;
+}
+
+.navbar-sitio .nav-link:hover {
+  color: #fff;
+  text-decoration: none;
+  border-bottom-color: var(--copper);
+}
+
+.navbar-sitio .nav-link.active {
+  color: #fff;
+  border-bottom-color: var(--copper);
+}
+
+.navbar-sesion {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.navbar-usuario {
+  color: var(--paper-soft);
+  font-size: 0.88rem;
+}
+
+/* ---------------------------------------------------------
+   Inicio: hero, destacados, video y mapa
+   --------------------------------------------------------- */
+.hero-sitio {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 64px 0 72px;
+  overflow: hidden;
+}
+
+.hero-sitio h1 { color: var(--paper); }
+
+.hero-sitio .hero-lead {
+  color: var(--paper-soft);
+  font-size: 1.1rem;
+  max-width: 46ch;
+}
+
+.hero-stats {
+  display: flex;
+  gap: 32px;
+  margin-top: 32px;
+  flex-wrap: wrap;
+}
+
+.hero-stats .num {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 2rem;
+  color: var(--copper);
+  display: block;
+  font-weight: 700;
+}
+
+.hero-stats .label {
+  color: var(--paper-soft);
+  font-size: 0.9rem;
+}
+
+.hero-acciones {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.hero-enlace {
+  color: var(--paper-soft);
+  font-size: 0.95rem;
+  text-decoration: underline;
+}
+
+.hero-img {
+  max-width: 100%;
+  height: auto;
+}
+
+.seccion { padding: 56px 0; }
+.seccion-alt { background: var(--paper-soft); }
+.seccion-intro { max-width: 60ch; margin-bottom: 32px; }
+.seccion-intro p { color: var(--text-soft); }
+
+.tarjeta {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: none;
+  position: relative;
+}
+
+.tarjeta::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 18px;
+  width: 14px;
+  height: 14px;
+  background: var(--paper-soft);
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  transform: translateY(-50%);
+}
+
+.badge-lista {
+  display: inline-flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px;
+}
+
+.badge-lista li {
+  border: 1px solid var(--line);
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  color: var(--text-soft);
+  border-radius: 999px;
+  background: var(--paper);
+}
+
+.video-wrap {
+  max-width: 720px;
+  border: 1px solid var(--line);
+  background: var(--ink);
+  padding: 6px;
+}
+
+.video-wrap video {
+  width: 100%;
+  display: block;
+  background: #000;
+}
+
+.video-caption {
+  color: var(--text-soft);
+  font-size: 0.9rem;
+  margin-top: 10px;
+}
+
+.mapa-embed {
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+
+.mapa-embed iframe {
+  width: 100%;
+  height: 320px;
+  border: 0;
+  display: block;
+}
+
+/* ---------------------------------------------------------
+   Pie de página
+   --------------------------------------------------------- */
+.site-footer {
+  background: var(--ink);
+  color: var(--paper-soft);
+  padding: 44px 0 24px;
+  margin-top: auto;
+}
+
+.site-footer h4 {
+  color: var(--paper);
+  font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
+  font-size: 0.95rem;
+  margin-bottom: 12px;
+}
+
+.site-footer a { color: var(--paper-soft); }
+
+.footer-descripcion {
+  color: var(--paper-soft);
+  max-width: 32ch;
+}
+
+.footer-lista {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.footer-bottom {
+  border-top: 1px solid var(--ink-soft);
+  margin-top: 32px;
+  padding-top: 16px;
+  font-size: 0.85rem;
+  color: var(--paper-soft);
+}
+
+/* ---------------------------------------------------------
+   Catálogo
+   --------------------------------------------------------- */
+.catalogo-toolbar {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: end;
+  margin-bottom: 28px;
+  padding: 20px;
+  background: var(--paper-soft);
+  border: 1px solid var(--line);
+}
+
+/* Dentro del toolbar los campos no necesitan su margen inferior de formulario */
+.catalogo-toolbar .mb-3 { margin-bottom: 0 !important; }
+.catalogo-toolbar .campo { min-width: 200px; }
+.catalogo-toolbar .campo-buscar { flex: 1; min-width: 240px; }
+
+.campo label,
+.catalogo-toolbar .form-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-soft);
+}
+
+.resultado-info {
+  margin-bottom: 16px;
+  color: var(--text-soft);
+  font-size: 0.9rem;
+}
+
+.producto-card {
+  position: relative;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+  box-shadow: none;
+}
+
+.producto-card:hover {
+  border-color: var(--copper);
+  box-shadow: 0 6px 18px rgba(30, 24, 18, 0.08);
+}
+
+.producto-card .card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 18px;
+}
+
+.producto-tag {
+  position: absolute;
+  top: 0;
+  right: 0;
+  border-radius: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 5px 10px;
+  z-index: 1;
+}
+
+.producto-categoria { font-size: 0.78rem; color: var(--text-soft); }
+
+.producto-nombre {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.05rem;
+  margin: 0;
+  color: var(--ink);
+}
+
+.producto-marca { font-size: 0.85rem; color: var(--text-soft); }
+.producto-desc { font-size: 0.85rem; color: var(--text-soft); flex: 1; margin-bottom: 0; }
+
+.producto-precio {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 700;
+  font-size: 1.15rem;
   color: var(--copper-dark);
+  margin-top: 6px;
+}
+
+.producto-stock { font-size: 0.8rem; color: var(--text-soft); }
+
+.producto-footer {
+  padding: 14px 18px;
+  border-top: 1px solid var(--line);
+  background: transparent;
+}
+
+.sin-resultados {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--text-soft);
+  border: 1px dashed var(--line);
+  max-width: none;
+}
+
+/* ---------------------------------------------------------
+   Carrito
+   --------------------------------------------------------- */
+.ticket {
+  background: var(--paper);
+  border: 1px solid var(--line);
+}
+
+.linea-carrito {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  gap: 14px;
+  align-items: center;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.linea-carrito:last-child { border-bottom: none; }
+
+.linea-nombre { font-weight: 600; color: var(--ink); }
+.linea-meta { font-size: 0.82rem; color: var(--text-soft); }
+.linea-total { text-align: right; min-width: 96px; }
+
+.cant-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cant-control button {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--line);
+  background: var(--paper-soft);
+  cursor: pointer;
+  font-size: 1rem;
+  border-radius: var(--radius);
+  line-height: 1;
+}
+
+.cant-control .form-control {
+  width: 46px;
+  text-align: center;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 4px;
+  font-size: 0.9rem;
+}
+
+.quitar-item {
+  background: none;
+  border: none;
+  color: var(--danger);
+  cursor: pointer;
+  font-size: 0.85rem;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.datos-entrega h2 { font-size: clamp(1.4rem, 2.5vw, 1.9rem); }
+
+.resumen {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 24px;
+  position: sticky;
+  top: 90px;
+  border-radius: var(--radius);
+}
+
+.resumen h3 {
+  color: var(--paper);
+  font-size: 1.25rem;
+}
+
+.resumen-linea {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--ink-soft);
+  font-size: 0.92rem;
+}
+
+.resumen-linea.total {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.3rem;
+  border-bottom: none;
+  padding-top: 16px;
+  color: var(--copper);
+}
+
+.carrito-vacio {
+  padding: 60px 20px;
+  text-align: center;
+  border: 1px dashed var(--line);
+  color: var(--text-soft);
+}
+
+.datos-entrega fieldset {
+  border-color: var(--line);
+  margin-bottom: 20px;
+}
+
+/* ---------------------------------------------------------
+   Formularios (además de las reglas de React Bootstrap)
+   --------------------------------------------------------- */
+.form-label {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.form-text { color: var(--text-soft) !important; }
+
+/* ---------------------------------------------------------
+   Responsive
+   --------------------------------------------------------- */
+@media (max-width: 767.98px) {
+  .hero-sitio { padding: 44px 0 48px; }
+  .seccion { padding: 40px 0; }
+  .resumen { position: static; }
+}
+
+@media (max-width: 480px) {
+  .linea-carrito {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .linea-total { text-align: left; }
+
+  .catalogo-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .catalogo-toolbar .campo,
+  .catalogo-toolbar .campo-buscar { min-width: 0; }
 }
