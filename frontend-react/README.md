@@ -8,6 +8,14 @@ entre páginas, formularios con validación y hooks propios.
 > Las secciones generales del proyecto (equipo, caso, descripción,
 > tecnologías) están en el `README.md` de la raíz del repositorio.
 
+## Backend
+
+El backend del proyecto está en un repositorio aparte:
+**<https://github.com/VicMarkov/ProyectoSN_Backend>** (API REST Node.js +
+Express + PostgreSQL; login con JWT, catálogo y ajuste de stock, con Swagger
+en `/api/docs`). Este frontend **aún no lo consume**: la integración mediante
+`src/services/` es el siguiente paso.
+
 ## Cómo ejecutar
 
 ```bash
@@ -15,7 +23,8 @@ npm install
 npm run dev
 ```
 
-Login de prueba (no hay backend todavía, se simula en `src/pages/Login.jsx`):
+Login de prueba (la sesión todavía se simula en `src/pages/Login.jsx`; las
+mismas cuentas sirven para probar la API del backend):
 - Correo: `demo@sonidovivo.cl`
 - Contraseña: `demo123`
 
@@ -177,3 +186,13 @@ documento de cobertura de la Guía 15.
 - Parámetros en la ruta con `useParams` (`/categoria/:nombre`,
   `/producto/:id`) y página de detalle de producto.
 - Migrar el sitio a API REST (Spring Boot + MySQL).
+
+## Integracion con backend (EP3)
+
+El frontend consume la API REST de Sonido Vivo mediante src/services/.
+
+- API base: VITE_API_URL (por defecto http://localhost:3000/api; en despliegue se usa /api).
+- Autenticacion: JWT Bearer en Authorization.
+- Sesion persistente en localStorage (sonidovivo_sesion y sonidovivo_token).
+- Flujos integrados: login, registro, catalogo, checkout/pedidos, mis pedidos, detalle y administracion.
+- Despliegue: build estatico servido por nginx en http://54.198.104.140, con proxy /api al backend Node en 127.0.0.1:3000.

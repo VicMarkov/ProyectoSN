@@ -1,11 +1,10 @@
-// Suite de la página Login (validación, sesión simulada y navegación).
-// El login simula una llamada a la API con setTimeout(800): por eso estos
-// casos usan waitFor en lugar de asertar de inmediato.
-import { describe, it, expect } from 'vitest';
+// Suite de la página Login (validación, sesión real y navegación).
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Login from './Login';
 import { conProveedores, CLAVE_SESION, SondaRuta } from '../test/helpers';
+import { CLAVE_TOKEN } from '../services/api';
 
 function renderLogin() {
   conProveedores(
@@ -16,6 +15,25 @@ function renderLogin() {
     '/login'
   );
 }
+
+function mockFetch(respuesta) {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(async () => ({
+      ok: respuesta.ok,
+      status: respuesta.status,
+      text: async () => JSON.stringify(respuesta.body),
+    }))
+  );
+}
+
+beforeEach(() => {
+  localStorage.clear();
+});
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
 async function escribirCredenciales(usuario, email, clave) {
   await usuario.type(screen.getByLabelText('Correo electrónico'), email);
@@ -41,36 +59,38 @@ describe('Login', () => {
   });
 
   it('rechaza credenciales incorrectas con el mensaje de error', async () => {
+    mockFetch({ ok: false, status: 401, body: { error: 'Correo electrónico o contraseña incorrectos.' } });
     const usuario = userEvent.setup();
     renderLogin();
 
     await escribirCredenciales(usuario, 'mal@correo.cl', 'clave123');
     await usuario.click(screen.getByRole('button', { name: 'Iniciar sesión' }));
 
-    await waitFor(
-      () => {
-        expect(screen.getByText(/Correo o contraseña incorrectos/)).toBeInTheDocument();
-      },
-      { timeout: 2000 }
-    );
+    await waitFor(() => {
+      expect(screen.getByText(/Correo electrónico o contraseña incorrectos/)).toBeInTheDocument();
+    });
     expect(screen.getByTestId('sonda-ruta')).toHaveTextContent('/login');
   });
 
   it('ingresa con las credenciales de prueba, guarda la sesión y navega al inicio', async () => {
+    mockFetch({
+      ok: true,
+      status: 200,
+      body: {
+        token: 'token-de-prueba',
+        usuario: { id: 3, nombre: 'Cliente Demo', email: 'demo@sonidovivo.cl', rol: 'Cliente' },
+      },
+    });
     const usuario = userEvent.setup();
     renderLogin();
 
     await escribirCredenciales(usuario, 'demo@sonidovivo.cl', 'demo123');
     await usuario.click(screen.getByRole('button', { name: 'Iniciar sesión' }));
 
-    await waitFor(
-      () => {
-        expect(screen.getByTestId('sonda-ruta')).toHaveTextContent('/');
-        expect(JSON.parse(localStorage.getItem(CLAVE_SESION))).toEqual({
-          email: 'demo@sonidovivo.cl',
-        });
-      },
-      { timeout: 2000 }
-    );
+    await waitFor(() => {
+      expect(screen.getByTestId('sonda-ruta')).toHaveTextContent('/');
+    });
+    expect(JSON.parse(localStorage.getItem(CLAVE_SESION)).email).toBe('demo@sonidovivo.cl');
+    expect(localStorage.getItem(CLAVE_TOKEN)).toBe('token-de-prueba');
   }, 5000);
 });

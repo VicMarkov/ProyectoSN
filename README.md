@@ -13,14 +13,24 @@ El repositorio tiene dos versiones del frontend:
 
 Todo lo nuevo se desarrolla en `frontend-react/`.
 
+El **backend** del proyecto vive en un repositorio separado:
+**<https://github.com/VicMarkov/ProyectoSN_Backend>** — API REST con Node.js +
+Express y PostgreSQL, en su fase de construcción inicial (auth con JWT,
+catálogo y ajuste de stock). Su README explica cómo ejecutarla y probarla
+desde Swagger UI. La integración frontend ↔ API es el siguiente paso.
+
 ## Alcance de esta entrega
 
 La versión HTML es **solo frontend**: HTML5 semántico, CSS externo y
 JavaScript para validación de formularios y simulación del carrito de
-compras con `localStorage`. La versión React mantiene ese alcance (sin
-backend, API ni base de datos): eso corresponde a los Parciales 2 y 3
-(React + Spring Boot + MySQL, según la Sección 0 del documento de contexto
-de negocio).
+compras con `localStorage`. La versión React mantiene ese alcance **sin
+integración todavía**: los datos y la sesión siguen simulados en el cliente.
+El backend ya existe en su propio repositorio
+([ProyectoSN_Backend](https://github.com/VicMarkov/ProyectoSN_Backend),
+Node.js + Express + PostgreSQL según el ERS v1.2), y conectarlo con el
+frontend corresponde a la siguiente fase (antes era "React + Spring Boot +
+MySQL" en la Sección 0 del documento de contexto de negocio; la elección
+definitiva está documentada en el ERS y en el README del backend).
 
 ## Cómo abrir el sitio
 

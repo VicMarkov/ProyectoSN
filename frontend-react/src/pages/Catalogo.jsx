@@ -1,44 +1,83 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Container, Row, Col, Form } from 'react-bootstrap';
+import { Container, Row, Col, Form, Alert, Spinner } from 'react-bootstrap';
 import PlantillaSitio from '../components/templates/PlantillaSitio';
 import CampoFormulario from '../components/molecules/CampoFormulario';
 import TarjetaProducto from '../components/molecules/TarjetaProducto';
-import { PRODUCTOS, categorias } from '../data/productos';
+import * as productosService from '../services/productos';
 import { useCart } from '../context/CarritoContext';
 import { useTituloPagina } from '../hooks/useTituloPagina';
 
-const OPCIONES_CATEGORIA = [
-  { valor: 'todas', texto: 'Todas las categorías' },
-  ...categorias.map((categoria) => ({ valor: categoria, texto: categoria })),
-];
+function mapearProducto(producto) {
+  return {
+    id: producto.id,
+    codigo: producto.sku,
+    categoria: producto.categoria,
+    nombre: producto.nombre,
+    marca: producto.marca,
+    modelo: producto.modelo,
+    stock: producto.stock,
+    precio: producto.precio,
+    descripcion: producto.descripcion,
+  };
+}
 
-// PÁGINA: catálogo. Filtra con dos useState (categoría y término de
-// búsqueda) y memoriza el resultado con useMemo para no recalcularlo en
-// cada render que no cambió los filtros.
+// PÁGINA: catálogo. Obtiene los productos desde la API y filtra en cliente.
 function Catalogo() {
   useTituloPagina('Catálogo');
   const { agregarProducto } = useCart();
 
+  const [productos, setProductos] = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState('');
   const [categoria, setCategoria] = useState('todas');
   const [termino, setTermino] = useState('');
-  const [agregado, setAgregado] = useState(null); // código recién agregado
+  const [agregado, setAgregado] = useState(null);
   const reloj = useRef(null);
 
-  // Al desmontar, no queda ningún temporizador escribiendo en estado.
   useEffect(() => () => clearTimeout(reloj.current), []);
+
+  useEffect(() => {
+    let activo = true;
+    setCargando(true);
+    productosService
+      .listar({ limite: 100 })
+      .then(({ productos: recibidos }) => {
+        if (activo) setProductos(recibidos.map(mapearProducto));
+      })
+      .catch((err) => {
+        if (activo) setError(err.message || 'No fue posible cargar el catálogo.');
+      })
+      .finally(() => {
+        if (activo) setCargando(false);
+      });
+    return () => {
+      activo = false;
+    };
+  }, []);
+
+  const categorias = useMemo(
+    () => [...new Set(productos.map((producto) => producto.categoria))].sort(),
+    [productos]
+  );
+
+  const opcionesCategoria = useMemo(
+    () => [{ valor: 'todas', texto: 'Todas las categorías' }, ...categorias.map((cat) => ({ valor: cat, texto: cat }))],
+    [categorias]
+  );
 
   const visibles = useMemo(() => {
     const buscado = termino.trim().toLowerCase();
-    return PRODUCTOS.filter((producto) => {
+    return productos.filter((producto) => {
       const coincideCategoria = categoria === 'todas' || producto.categoria === categoria;
       const coincideTexto =
         !buscado ||
         producto.nombre.toLowerCase().includes(buscado) ||
         producto.marca.toLowerCase().includes(buscado) ||
-        producto.modelo.toLowerCase().includes(buscado);
+        producto.modelo.toLowerCase().includes(buscado) ||
+        producto.codigo.toLowerCase().includes(buscado);
       return coincideCategoria && coincideTexto;
     });
-  }, [categoria, termino]);
+  }, [productos, categoria, termino]);
 
   function manejarAgregar(codigo) {
     agregarProducto(codigo, 1);
@@ -54,10 +93,11 @@ function Catalogo() {
           <div className="seccion-intro">
             <h1>Catálogo</h1>
             <p>
-              340 referencias distintas repartidas en 12 categorías. Esta vista muestra una
-              selección representativa con stock y precio actualizados.
+              Catálogo actualizado con stock y precio vigentes.
             </p>
           </div>
+
+          {error && <Alert variant="danger">{error}</Alert>}
 
           <Form
             role="search"
@@ -70,7 +110,7 @@ function Catalogo() {
                 etiqueta="Categoría"
                 valor={categoria}
                 onChange={(e) => setCategoria(e.target.value)}
-                opciones={OPCIONES_CATEGORIA}
+                opciones={opcionesCategoria}
               />
             </div>
             <div className="campo-buscar">
@@ -85,27 +125,35 @@ function Catalogo() {
             </div>
           </Form>
 
-          <p className="resultado-info" aria-live="polite">
-            {visibles.length} producto(s) encontrados de 340 referencias totales del catálogo.
-          </p>
-
-          {visibles.length === 0 ? (
-            <p className="sin-resultados">
-              No encontramos productos con ese filtro. Prueba con otra categoría o término de
-              búsqueda.
-            </p>
+          {cargando ? (
+            <div className="text-center py-5">
+              <Spinner animation="border" />
+            </div>
           ) : (
-            <Row className="g-4">
-              {visibles.map((producto) => (
-                <Col key={producto.codigo} xs={12} sm={6} lg={4}>
-                  <TarjetaProducto
-                    producto={producto}
-                    agregado={agregado === producto.codigo}
-                    onAgregar={manejarAgregar}
-                  />
-                </Col>
-              ))}
-            </Row>
+            <>
+              <p className="resultado-info" aria-live="polite">
+                {visibles.length} producto(s) encontrados de {productos.length} referencias totales del catálogo.
+              </p>
+
+              {visibles.length === 0 ? (
+                <p className="sin-resultados">
+                  No encontramos productos con ese filtro. Prueba con otra categoría o término de
+                  búsqueda.
+                </p>
+              ) : (
+                <Row className="g-4">
+                  {visibles.map((producto) => (
+                    <Col key={producto.codigo} xs={12} sm={6} lg={4}>
+                      <TarjetaProducto
+                        producto={producto}
+                        agregado={agregado === producto.codigo}
+                        onAgregar={manejarAgregar}
+                      />
+                    </Col>
+                  ))}
+                </Row>
+              )}
+            </>
           )}
         </Container>
       </section>

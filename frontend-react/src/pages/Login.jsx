@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import LayoutAutenticacion from '../components/templates/LayoutAutenticacion';
 import FormularioLogin from '../components/organisms/FormularioLogin';
 import { useSesion } from '../context/SesionContext';
+import { ApiError } from '../services/api';
 import { useTituloPagina } from '../hooks/useTituloPagina';
 import { validarEmail, validarClave } from '../utils/validaciones';
 
@@ -48,7 +49,7 @@ function Login() {
     setErrores((anteriores) => ({ ...anteriores, [campo]: validarCampo(campo, valores[campo]) }));
   }
 
-  function manejarEnvio(evento) {
+  async function manejarEnvio(evento) {
     evento.preventDefault();
     setErrorGeneral('');
 
@@ -62,19 +63,20 @@ function Login() {
     if (hayErrores) return;
 
     setCargando(true);
+    setErrorGeneral('');
 
-    // Simulación temporal: todavía no existe backend de autenticación.
-    setTimeout(() => {
+    try {
+      await iniciarSesion(valores.email, valores.password);
+      navigate('/');
+    } catch (error) {
+      setErrorGeneral(
+        error instanceof ApiError
+          ? error.message
+          : 'No fue posible iniciar sesión. Inténtalo nuevamente.'
+      );
+    } finally {
       setCargando(false);
-      if (valores.email === 'demo@sonidovivo.cl' && valores.password === 'demo123') {
-        // Login correcto: se guarda la sesión en el contexto y la página
-        // cambia de dirección con navigate (sin alert() y sin recargar).
-        iniciarSesion(valores.email);
-        navigate('/');
-      } else {
-        setErrorGeneral('Correo o contraseña incorrectos. Prueba con demo@sonidovivo.cl / demo123.');
-      }
-    }, 800);
+    }
   }
 
   return (

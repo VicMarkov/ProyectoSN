@@ -6,6 +6,10 @@ import LineaCarrito from '../components/molecules/LineaCarrito';
 import ResumenCarrito from '../components/organisms/ResumenCarrito';
 import FormularioCheckout from '../components/organisms/FormularioCheckout';
 import { useCart } from '../context/CarritoContext';
+import { useSesion } from '../context/SesionContext';
+import * as productosService from '../services/productos';
+import * as pedidosService from '../services/pedidos';
+import { ApiError, leerToken } from '../services/api';
 import { useTituloPagina } from '../hooks/useTituloPagina';
 
 const COSTO_DESPACHO = 4990;
@@ -21,6 +25,9 @@ function Carrito() {
 
   const [entrega, setEntrega] = useState('retiro');
   const [confirmacion, setConfirmacion] = useState('');
+  const [errorPedido, setErrorPedido] = useState('');
+  const [enviando, setEnviando] = useState(false);
+  const { sesion } = useSesion();
 
   const despacho = entrega === 'despacho' ? COSTO_DESPACHO : 0;
   const carritoVacio = items.length === 0;
@@ -34,12 +41,49 @@ function Carrito() {
     }
   }
 
-  function manejarEnvio(datos) {
-    const numeroPedido = 'SV-' + Math.floor(100000 + Math.random() * 900000);
-    setConfirmacion(
-      `Pedido ${numeroPedido} confirmado a nombre de ${datos.nombre}. Te avisaremos por correo (${datos.email}) el estado de preparación y despacho.`
-    );
-    vaciarCarrito();
+  async function manejarEnvio(datos) {
+    setErrorPedido('');
+    const token = leerToken();
+
+    if (!token) {
+      const numeroPedido = 'SV-' + Math.floor(100000 + Math.random() * 900000);
+      setConfirmacion(
+        `Pedido ${numeroPedido} confirmado a nombre de ${datos.nombre}. Te avisaremos por correo (${datos.email}) el estado de preparación y despacho.`
+      );
+      vaciarCarrito();
+      return;
+    }
+
+    setEnviando(true);
+    try {
+      const { productos } = await productosService.listar({ limite: 100 });
+      const porSku = new Map(productos.map((producto) => [producto.sku, producto.id]));
+      const itemsPedido = items
+        .map((item) => ({ idProducto: porSku.get(item.codigo), cantidad: item.cantidad }))
+        .filter((item) => item.idProducto);
+
+      if (itemsPedido.length === 0) {
+        throw new ApiError('No se pudieron asociar los productos del carrito.', 400);
+      }
+
+      const respuesta = await pedidosService.crear({
+        items: itemsPedido,
+        tipoEntrega: entrega === 'despacho' ? 'DOMICILIO' : 'RETIRO_TIENDA',
+        nombreContacto: datos.nombre,
+        emailContacto: datos.email,
+        telefonoContacto: datos.telefono,
+        direccionDespacho: entrega === 'despacho' ? datos.direccion : undefined,
+      });
+
+      setConfirmacion(
+        `Pedido ${respuesta.pedido.numeroPedido} confirmado a nombre de ${datos.nombre}. Te avisaremos por correo (${datos.email}) el estado de preparación y despacho.`
+      );
+      vaciarCarrito();
+    } catch (error) {
+      setErrorPedido(error instanceof ApiError ? error.message : 'No fue posible confirmar el pedido.');
+    } finally {
+      setEnviando(false);
+    }
   }
 
   return (
@@ -51,6 +95,12 @@ function Carrito() {
           {confirmacion && (
             <Alert variant="success" onClose={() => setConfirmacion('')} dismissible>
               {confirmacion}
+            </Alert>
+          )}
+
+          {errorPedido && (
+            <Alert variant="danger" onClose={() => setErrorPedido('')} dismissible>
+              {errorPedido}
             </Alert>
           )}
 

@@ -1,15 +1,8 @@
-// SesionContext.jsx
-// Caja compartida de la sesión de usuario (useContext).
-//
-// No hay backend todavía: la autenticación sigue simulada en Login.jsx
-// (demo@sonidovivo.cl / demo123). Aquí solo se guarda "quién entró" para
-// que el navbar pueda mostrarlo y para cerrar sesión desde cualquier
-// página. Cuando exista el microservicio de autenticación, solo cambia
-// cómo se obtiene la sesión (fetch en lugar de este estado local).
 import { createContext, useContext, useEffect, useState } from 'react';
+import * as authService from '../services/auth';
+import { borrarToken, guardarToken, leerToken } from '../services/api';
 
 const CLAVE_SESION = 'sonidovivo_sesion';
-
 const SesionContexto = createContext(null);
 
 function leerSesionGuardada() {
@@ -24,29 +17,98 @@ function leerSesionGuardada() {
 
 export function SesionProvider({ children }) {
   const [sesion, setSesion] = useState(leerSesionGuardada);
+  const [cargando, setCargando] = useState(false);
 
   useEffect(() => {
     if (sesion) {
-      localStorage.setItem(CLAVE_SESION, JSON.stringify(sesion));
+      localStorage.setItem(CLAVE_SESION, JSON.stringify({ email: sesion.email }));
     } else {
       localStorage.removeItem(CLAVE_SESION);
     }
   }, [sesion]);
 
-  function iniciarSesion(email) {
-    setSesion({ email });
+  useEffect(() => {
+    const token = leerToken();
+    if (!token) {
+      return undefined;
+    }
+
+    let activo = true;
+    setCargando(true);
+    authService
+      .obtenerSesion()
+      .then(({ usuario }) => {
+        if (activo) setSesion(usuario);
+      })
+      .catch(() => {
+        if (activo) {
+          setSesion(null);
+          borrarToken();
+        }
+      })
+      .finally(() => {
+        if (activo) setCargando(false);
+      });
+
+    return () => {
+      activo = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    const expirar = () => {
+      setSesion(null);
+      borrarToken();
+    };
+    window.addEventListener('sonidovivo:sesion-expirada', expirar);
+    return () => window.removeEventListener('sonidovivo:sesion-expirada', expirar);
+  }, []);
+
+  function iniciarSesion(emailOCredenciales, password) {
+    const credenciales =
+      typeof emailOCredenciales === 'string'
+        ? { email: emailOCredenciales, password }
+        : emailOCredenciales;
+
+    if (password === undefined) {
+      setSesion({ email: credenciales.email });
+      return;
+    }
+
+    return (async () => {
+      const { token, usuario } = await authService.iniciarSesion(credenciales);
+      guardarToken(token);
+      setSesion(usuario);
+      return usuario;
+    })();
+  }
+
+  async function registrar(datos) {
+    const resultado = await authService.registrar(datos);
+    return resultado.usuario;
   }
 
   function cerrarSesion() {
     setSesion(null);
+    borrarToken();
   }
 
-  const valor = { sesion, iniciarSesion, cerrarSesion };
+  function actualizarSesion(usuario) {
+    setSesion((anterior) => ({ ...anterior, ...usuario }));
+  }
+
+  const valor = {
+    sesion,
+    cargando,
+    iniciarSesion,
+    registrar,
+    cerrarSesion,
+    actualizarSesion,
+  };
 
   return <SesionContexto.Provider value={valor}>{children}</SesionContexto.Provider>;
 }
 
-// Hook propio del proyecto: "abre la caja" de la sesión.
 export function useSesion() {
   const contexto = useContext(SesionContexto);
   if (!contexto) {

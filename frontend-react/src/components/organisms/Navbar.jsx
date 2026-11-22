@@ -10,6 +10,7 @@ const ENLACES = [
   { ruta: '/', texto: 'Inicio' },
   { ruta: '/catalogo', texto: 'Catálogo' },
   { ruta: '/carrito', texto: 'Carrito' },
+  { ruta: '/mis-pedidos', texto: 'Mis pedidos' },
   { ruta: '/contacto', texto: 'Contacto' },
 ];
 
@@ -52,6 +53,20 @@ function Navbar({ onNavegar, rutaActual = '/' }) {
               </Nav.Link>
             ))}
           </Nav>
+
+          {sesion?.rol === 'Administrador' && (
+            <Nav className="me-3">
+              <Nav.Link href="/admin/usuarios" active={rutaActual === '/admin/usuarios'} onClick={(e) => ir(e, '/admin/usuarios')}>
+                Usuarios
+              </Nav.Link>
+              <Nav.Link href="/admin/productos" active={rutaActual === '/admin/productos'} onClick={(e) => ir(e, '/admin/productos')}>
+                Productos
+              </Nav.Link>
+              <Nav.Link href="/admin/pedidos" active={rutaActual === '/admin/pedidos'} onClick={(e) => ir(e, '/admin/pedidos')}>
+                Pedidos
+              </Nav.Link>
+            </Nav>
+          )}
 
           <Nav className="navbar-sesion">
             {sesion ? (
