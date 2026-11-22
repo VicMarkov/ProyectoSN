@@ -195,4 +195,4 @@ El frontend consume la API REST de Sonido Vivo mediante src/services/.
 - Autenticacion: JWT Bearer en Authorization.
 - Sesion persistente en localStorage (sonidovivo_sesion y sonidovivo_token).
 - Flujos integrados: login, registro, catalogo, checkout/pedidos, mis pedidos, detalle y administracion.
-- Despliegue: build estatico servido por nginx en http://54.198.104.140, con proxy /api al backend Node en 127.0.0.1:3000.
+- Despliegue: build estatico servido por nginx en http://3.211.234.101, con proxy /api al backend Node en 127.0.0.1:3000.
